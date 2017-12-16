@@ -2009,10 +2009,38 @@ ${ dashboard.layout_skeleton(suffix='search') }
     <div data-bind="with: $root.collection.getFacetById($parent.id())">
       <span data-bind="template: { name: 'facet-toggle2' }"></span>
 
-      <span class="pull-right" data-bind="visible: $root.availableDateFields().length > 0, template: { name: 'facet-compare', data: properties.compare }"></span>
+      <div class="pull-right">
+        <span data-bind="visible: $root.collection.supportAnalytics(), template: { name: 'facet-filter', data: properties.filter }"></span>
+        <span data-bind="visible: $root.collection.supportAnalytics() && $root.availableDateFields().length > 0, template: { name: 'facet-compare', data: properties.compare }"></span>
+      </div>
     </div>
 
     <span class="big-counter" data-bind="template: { name: 'counter-form', data: {counts: counts(), properties: $root.collection.getFacetById($parent.id()).properties }}"></span>
+  </div>
+  <!-- /ko -->
+</script>
+
+
+<script type="text/html" id="facet-filter">
+  <label>
+    <input type="checkbox" data-bind="checked: is_enabled"/> ${ _('Filter') }
+  </label>
+
+  <!-- ko if: is_enabled -->
+  <div class="facet-field-cnt">
+    <span class="spinedit-cnt">
+      <span class="facet-field-label">
+        ${ _('Query') }
+      </span>
+      <div data-bind="component: { name: 'hue-simple-ace-editor', params: {
+        value: query,
+        onExec: $parent.searchBtn,
+        placeHolder: $root.collection.engine() === 'solr' ? '${ _ko('Example: field:value, or press CTRL + space') }' : '${ _ko('Example: col = value, or press CTRL + space') }',
+        autocomplete: { type: $root.collection.engine() + 'Query', support: { collection: $root.collection } },
+        mode: $root.collection.engine(),
+        singleLine: true }
+      }"></div>
+    </span>
   </div>
   <!-- /ko -->
 </script>
@@ -2030,7 +2058,9 @@ ${ dashboard.layout_skeleton(suffix='search') }
 
 
 <script type="text/html" id="facet-compare">
-  <input type="checkbox" data-bind="checked: is_enabled"/> ${ _('Compare') }
+  <label>
+    <input type="checkbox" data-bind="checked: is_enabled"/> ${ _('Compare') }
+  </label>
 
   <!-- ko if: is_enabled -->
   <div class="facet-field-cnt">
@@ -2038,8 +2068,8 @@ ${ dashboard.layout_skeleton(suffix='search') }
       <span class="facet-field-label">
         ${ _('Cohorts') }
       </span>
-      <input type="text" class="input-medium"/>
-      <input type="number" class="input-medium"/>
+      <input type="text" class="input-small" data-bind="value: gap"/>
+      <input type="number" class="input-small" data-bind="value: cohort_number"/>
     </span>
   </div>
 
